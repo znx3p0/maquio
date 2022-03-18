@@ -3,6 +3,10 @@ name = "maquio"
 version = "0.1.0"
 edition = "2021"
 
+description = "library for building composable distributed systems"
+license = "MIT"
+repository = "https://github.com/znx3p0/maquio"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
