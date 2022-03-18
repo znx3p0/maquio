@@ -3,6 +3,7 @@ name = "maquio"
 version = "0.1.0"
 edition = "2021"
 
+keywords = [ "distributed", "async", "http", "microservices", "rpc" ]
 description = "library for building composable distributed systems"
 license = "MIT"
 repository = "https://github.com/znx3p0/maquio"
