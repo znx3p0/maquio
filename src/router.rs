@@ -3,7 +3,7 @@ use std::sync::Arc;
 use ahash::RandomState;
 use camino::Utf8Path;
 use canary::{Channel, Result, err};
-use compact_str::CompactStr;
+use compact_str::CompactString;
 use dashmap::DashMap;
 use serde_repr::{Serialize_repr, Deserialize_repr};
 use async_recursion::async_recursion;
@@ -32,7 +32,7 @@ where
     }
 }
 
-type Key = CompactStr;
+type Key = CompactString;
 type InnerRoute = DashMap<Key, Storable, RandomState>;
 
 #[derive(Default, Clone)]

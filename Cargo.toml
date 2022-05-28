@@ -15,7 +15,7 @@ canary = "0.2.3"
 dashmap = "5.1.0"
 ahash = "0.7.6"
 camino = "1"
-compact_str = { version = "0.3.1", features = [ "serde" ] }
+compact_str = { version = "0.4", features = [ "serde" ] }
 derive_more = "0.99.17"
 derive-new = "0.5.9"
 async-trait = "0.1.52"
