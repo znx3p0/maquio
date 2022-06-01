@@ -1,21 +1,23 @@
 use std::sync::Arc;
 
 use ahash::RandomState;
+use async_recursion::async_recursion;
 use camino::Utf8Path;
-use canary::{Channel, Result, err};
+use canary::{err, Channel, Result};
 use compact_str::CompactString;
 use dashmap::DashMap;
-use serde_repr::{Serialize_repr, Deserialize_repr};
-use async_recursion::async_recursion;
+use serde_repr::{Deserialize_repr, Serialize_repr};
 
 pub enum Service {
     Dynamic(Box<dyn Fn(Channel) + Send + Sync + 'static>),
+    Static(fn(Channel)),
 }
 
 impl Service {
     pub(crate) fn call(&self, channel: Channel) {
         match self {
             Service::Dynamic(svc) => svc(channel),
+            Service::Static(svc) => svc(channel),
         }
     }
 }
@@ -75,7 +77,7 @@ impl std::ops::Deref for Flavor {
 #[repr(u8)]
 pub enum Status {
     Found,
-    NotFound
+    NotFound,
 }
 
 pub enum Storable {
@@ -96,7 +98,7 @@ impl Router {
         let path = Utf8Path::new(key.as_str());
         let mut iter = path.into_iter();
         if let Err(_) = self.inner_switch(c, &mut iter, true).await {
-            return err!(("route not found"))
+            return err!(("route not found"));
         };
         Ok(())
     }
@@ -108,38 +110,31 @@ impl Router {
         discover: bool,
     ) -> std::result::Result<(), Channel> {
         let res = match at.next() {
-            Some(key) => {
-                match self.map.get(key) {
-                    Some(storable) => {
-                        match storable.value() {
-                            Storable::Svc(svc) => {
-                                if discover {
-                                    if let Ok(_) = c.send(Status::Found).await {
-                                        svc.call(c);
-                                    };
-                                }
-                                Ok(())
-                            },
-                            Storable::Router(router) => {
-                                let fut = router.inner_switch(c, at, discover);
-                                fut.await
-                            },
+            Some(key) => match self.map.get(key) {
+                Some(storable) => match storable.value() {
+                    Storable::Svc(svc) => {
+                        if discover {
+                            if let Ok(_) = c.send(Status::Found).await {
+                                svc.call(c);
+                            };
                         }
-                    },
-                    None => Err(c),
-                }
+                        Ok(())
+                    }
+                    Storable::Router(router) => {
+                        let fut = router.inner_switch(c, at, discover);
+                        fut.await
+                    }
+                },
+                None => Err(c),
             },
             None => Err(c),
         };
         if discover {
             if let Err(mut c) = res {
                 c.send(Status::NotFound).await.ok();
-                return Err(c)
+                return Err(c);
             }
         }
         res
     }
-
 }
-
-

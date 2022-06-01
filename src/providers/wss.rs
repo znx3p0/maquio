@@ -1,14 +1,13 @@
-
-use canary::providers::Wss as CWss;
-use canary::{Result, Channel, err};
+use canary::providers::WebSocket as CWss;
+use canary::{err, Channel, Result};
 use tokio::net::ToSocketAddrs;
 use tokio::task::JoinHandle;
 
-use crate::Router;
 use crate::router::Status;
+use crate::Router;
 
-pub struct Wss;
-impl Wss {
+pub struct WebSocket;
+impl WebSocket {
     pub async fn bind(addrs: impl ToSocketAddrs, r: Router) -> Result<JoinHandle<Result<()>>> {
         let tcp = CWss::bind(addrs).await?;
         Ok(tokio::spawn(async move {
