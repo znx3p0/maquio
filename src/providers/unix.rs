@@ -1,12 +1,11 @@
-
 use std::path::Path;
 
 use canary::providers::Unix as CUnix;
-use canary::{Result, Channel, err};
+use canary::{err, Channel, Result};
 use tokio::task::JoinHandle;
 
-use crate::Router;
 use crate::router::Status;
+use crate::Router;
 
 pub struct Unix;
 impl Unix {
@@ -29,7 +28,7 @@ impl Unix {
         c.send(id).await?;
         match c.receive::<Status>().await? {
             Status::Found => Ok(c),
-            Status::NotFound => err!((format!("service id: `{id}` not found"))),
+            Status::NotFound => err!((not_found, "service id: `{}` not found", id)),
         }
     }
 }

@@ -98,7 +98,7 @@ impl Router {
         let path = Utf8Path::new(key.as_str());
         let mut iter = path.into_iter();
         if let Err(_) = self.inner_switch(c, &mut iter, true).await {
-            return err!(("route not found"));
+            return err!((not_found, "route not found"));
         };
         Ok(())
     }
@@ -108,7 +108,7 @@ impl Router {
         mut c: Channel,
         at: &mut camino::Iter<'_>,
         discover: bool,
-    ) -> std::result::Result<(), Channel> {
+    ) -> Result<(), Channel> {
         let res = match at.next() {
             Some(key) => match self.map.get(key) {
                 Some(storable) => match storable.value() {

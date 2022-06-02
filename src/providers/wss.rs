@@ -27,7 +27,7 @@ impl WebSocket {
         c.send(id).await?;
         match c.receive::<Status>().await? {
             Status::Found => Ok(c),
-            Status::NotFound => err!((format!("service id: `{id}` not found"))),
+            Status::NotFound => err!((not_found, "service id: `{}` not found", id)),
         }
     }
 }
